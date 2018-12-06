@@ -14,12 +14,16 @@
 """
 
 import socket
+from Crypto import Random
+from Crypto.Cipher import AES
+from Crypto.Cipher import PKCS1_OAEP
+from Crypto.PublicKey import RSA
+from Crypto.Hash import SHA
 
 iv = "G4XO4L\X<J;MPPLD"
 
 host = "localhost"
 port = 10001
-
 
 # A helper function that you may find useful for AES encryption
 def pad_message(message):
@@ -28,23 +32,32 @@ def pad_message(message):
 
 # TODO: Generate a random AES key
 def generate_key():
-    pass
+    return Random.get_random_bytes(16)
 
 
 # TODO: Takes an AES session key and encrypts it using the server's
 # TODO: public key and returns the value
 def encrypt_handshake(session_key):
-    pass
+    message = session_key
+
+    key = RSA.importKey(open('ssh.txt.pub').read(), 'timppfrsa1234')
+    cipher = PKCS1_OAEP.new(key)
+    ciphertext = cipher.encrypt(message)
+    return ciphertext
 
 
 # TODO: Encrypts the message using AES. Same as server function
 def encrypt_message(message, session_key):
-    pass
+    cipher = AES.new(session_key, AES.MODE_CFB, iv.encode("utf8"))
+    ciphertext = cipher.encrypt(message.encode("utf8"))
+    return ciphertext
 
 
 # TODO: Decrypts the message using AES. Same as server function
 def decrypt_message(message, session_key):
-    pass
+    cipher = AES.new(session_key, AES.MODE_CFB, iv.encode("utf8"))
+    plaintext = cipher.decrypt(message)
+    return plaintext.decode("utf8")
 
 
 # Sends a message over TCP
@@ -75,10 +88,12 @@ def main():
         message = user + ' ' + password
 
         # TODO: Generate random AES key
+        session_key = generate_key()
 
         # TODO: Encrypt the session key using server's public key
-
+        encrypted_session_key = encrypt_handshake(session_key)
         # TODO: Initiate handshake
+        send_message(sock, encrypted_session_key)
 
         # Listen for okay from server (why is this necessary?)
         if receive_message(sock).decode() != "okay":
@@ -86,8 +101,13 @@ def main():
             exit(0)
 
         # TODO: Encrypt message and send to server
+        send_message(sock, encrypt_message(message, session_key))
 
         # TODO: Receive and decrypt response from server and print
+        response = receive_message(sock)
+        decrytped_response = decrypt_message(response, session_key)
+        print(decrytped_response)
+
 
     finally:
         print('closing socket')

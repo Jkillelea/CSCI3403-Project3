@@ -14,12 +14,19 @@
 """
 
 import socket
+from Crypto import Random
+from Crypto.Cipher import AES
+from Crypto.Cipher import PKCS1_OAEP
+from Crypto.PublicKey import RSA
+from Crypto.Hash import SHA
+import hashlib
+import uuid
+
 
 iv = "G4XO4L\X<J;MPPLD"
 
 host = "localhost"
 port = 10001
-
 
 # A helper function. It may come in handy when performing symmetric encryption
 def pad_message(message):
@@ -28,17 +35,25 @@ def pad_message(message):
 
 # TODO: Write a function that decrypts a message using the server's private key
 def decrypt_key(session_key):
-    pass
+    key = RSA.importKey(open('ssh.txt').read(), 'timppfrsa1234')
+    cipher = PKCS1_OAEP.new(key)
+    message = cipher.decrypt(session_key)
+
+    return message
 
 
 # TODO: Write a function that decrypts a message using the session key
 def decrypt_message(client_message, session_key):
-    pass
+    cipher = AES.new(session_key, AES.MODE_CFB, iv.encode("utf8"))
+    plaintext = cipher.decrypt(client_message)
+    return plaintext.decode("utf8")
 
 
 # TODO: Encrypt a message using the session key
 def encrypt_message(message, session_key):
-    pass
+    cipher = AES.new(session_key, AES.MODE_CFB, iv.encode("utf8"))
+    ciphertext = cipher.encrypt(message.encode("utf8"))
+    return ciphertext
 
 
 # Receive 1024 bytes from the client
@@ -65,9 +80,14 @@ def verify_hash(user, password):
         for line in reader.read().split('\n'):
             line = line.split("\t")
             if line[0] == user:
-                pass
                 # TODO: Salt password, compute hash, compare, and return
                 # TODO: true if authenticated, false otherwise
+                salt = line[1]
+                stored_password = line[2]
+                hashed_password = hashlib.sha512((password + salt).encode()).hexdigest()
+                print(hashed_password)
+                if hashed_password == stored_password:
+                    return True
         reader.close()
     except FileNotFoundError:
         return False
@@ -99,6 +119,7 @@ def main():
 
                 # Decrypt key from client
                 plaintext_key = decrypt_key(encrypted_key)
+                print(plaintext_key)
 
                 # Receive encrypted message from client
                 ciphertext_message = receive_message(connection)
