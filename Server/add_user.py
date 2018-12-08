@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """
     add_user.py - Stores a new username along with salt/password
 

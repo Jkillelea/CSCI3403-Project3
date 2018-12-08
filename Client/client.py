@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """
     client.py - Connect to an SSL server
 
