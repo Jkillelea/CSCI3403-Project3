@@ -149,4 +149,8 @@ def main():
 
 
 if __name__ in "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        import sys
+        sys.exit(0)
