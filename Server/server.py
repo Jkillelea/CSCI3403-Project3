@@ -34,7 +34,6 @@ def pad_message(message):
     return message + " " * ((16 - len(message)) % 16)
 
 
-# TODO: Write a function that decrypts a message using the server's private key
 def decrypt_key(session_key):
     key = RSA.importKey(open('ssh.txt').read(), 'timppfrsa1234')
     cipher = PKCS1_OAEP.new(key)
@@ -43,14 +42,12 @@ def decrypt_key(session_key):
     return message
 
 
-# TODO: Write a function that decrypts a message using the session key
 def decrypt_message(client_message, session_key):
     cipher = AES.new(session_key, AES.MODE_CFB, iv.encode("utf8"))
     plaintext = cipher.decrypt(client_message)
     return plaintext.decode("utf8")
 
 
-# TODO: Encrypt a message using the session key
 def encrypt_message(message, session_key):
     cipher = AES.new(session_key, AES.MODE_CFB, iv.encode("utf8"))
     ciphertext = cipher.encrypt(message.encode("utf8"))
@@ -81,8 +78,6 @@ def verify_hash(user, password):
         for line in reader.read().split('\n'):
             line = line.split("\t")
             if line[0] == user:
-                # TODO: Salt password, compute hash, compare, and return
-                # TODO: true if authenticated, false otherwise
                 salt = line[1]
                 stored_password = line[2]
                 hashed_password = hashlib.sha512((password + salt).encode()).hexdigest()

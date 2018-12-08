@@ -31,13 +31,10 @@ def pad_message(message):
     return message + " "*((16-len(message))%16)
 
 
-# TODO: Generate a random AES key
 def generate_key():
     return Random.get_random_bytes(16)
 
 
-# TODO: Takes an AES session key and encrypts it using the server's
-# TODO: public key and returns the value
 def encrypt_handshake(session_key):
     message = session_key
 
@@ -47,14 +44,12 @@ def encrypt_handshake(session_key):
     return ciphertext
 
 
-# TODO: Encrypts the message using AES. Same as server function
 def encrypt_message(message, session_key):
     cipher = AES.new(session_key, AES.MODE_CFB, iv.encode("utf8"))
     ciphertext = cipher.encrypt(message.encode("utf8"))
     return ciphertext
 
 
-# TODO: Decrypts the message using AES. Same as server function
 def decrypt_message(message, session_key):
     cipher = AES.new(session_key, AES.MODE_CFB, iv.encode("utf8"))
     plaintext = cipher.decrypt(message)
@@ -88,12 +83,9 @@ def main():
         # Message that we need to send
         message = user + ' ' + password
 
-        # TODO: Generate random AES key
         session_key = generate_key()
 
-        # TODO: Encrypt the session key using server's public key
         encrypted_session_key = encrypt_handshake(session_key)
-        # TODO: Initiate handshake
         send_message(sock, encrypted_session_key)
 
         # Listen for okay from server (why is this necessary?)
@@ -101,10 +93,8 @@ def main():
             print("Couldn't connect to server")
             exit(0)
 
-        # TODO: Encrypt message and send to server
         send_message(sock, encrypt_message(message, session_key))
 
-        # TODO: Receive and decrypt response from server and print
         response = receive_message(sock)
         decrytped_response = decrypt_message(response, session_key)
         print(decrytped_response)
